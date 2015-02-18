@@ -12,6 +12,7 @@ public class ConnMonitorWebRoutable implements RestletRoutable {
 	public Restlet getRestlet(Context context) {
 		Router router = new Router(context);
 		router.attach("/inform/json", ConnMonitorResource.class);
+		//router.attach("/inform/flowremove", ConnMonitorResource.class);
 		return router;
 	}
 

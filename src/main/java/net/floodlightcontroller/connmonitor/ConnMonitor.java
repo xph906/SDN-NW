@@ -1325,4 +1325,41 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 		return false;
 	}
 	
+	@Override
+	public boolean informFlowRemoved(String srcIP, String srcPort, String dstIP, String dstPort){
+		System.err.println("receive flowRemoved Msg: "+srcIP+":"+srcPort+"=>"+dstIP+":"+dstPort);
+		int srcIPInt = IPv4.toIPv4Address(srcIP);
+		short srcPortShort = Short.valueOf(srcPort);
+		int dstIPInt = IPv4.toIPv4Address(dstIP);
+		short dstPortShort = Short.valueOf(dstPort);
+		Connection conn = new Connection(srcIPInt, srcPortShort, dstIPInt, dstPortShort);
+		HoneyPot pot = getHoneypotFromConnection(conn);
+		if(pot == null){
+			System.err.println("informFlowRemoved: can't find the pot for this connection"+conn);
+			return false;
+		}
+		
+		OFMatch match = new OFMatch();	
+		match.setDataLayerType((short)0x0800);
+		match.setNetworkDestination(dstIPInt);
+		match.setNetworkSource(srcIPInt);
+		match.setTransportSource(srcPortShort);
+		match.setTransportDestination(dstPortShort);
+		deleteFlows(match,NW_SW);
+		
+		match = new OFMatch();	
+		match.setDataLayerType((short)0x0800);
+		match.setNetworkDestination(srcIPInt);
+		match.setNetworkSource(pot.getIpAddrInt());
+		match.setTransportSource(dstPortShort);
+		match.setTransportDestination(srcPortShort);
+		deleteFlows(match,NW_SW);
+		
+		Long key = conn.getConnectionSimplifiedKey();
+		connMap.remove(key);
+		
+		System.err.println("done delete flows "+srcIP+":"+srcPort+"=>"+dstIP+":"+dstPort);
+		return true;
+	}
+	
 }

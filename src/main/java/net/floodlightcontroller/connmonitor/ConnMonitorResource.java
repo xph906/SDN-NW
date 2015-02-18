@@ -52,6 +52,13 @@ public class ConnMonitorResource extends ServerResource {
 			 boolean rs = service.WhetherMigrate(ip, src_port, dst_ip,dst_port);
 			 return String.valueOf(rs);
 		 }
+		 else if(status.equals("flowremoved")){
+			 String srcIP = obj.getString("srcIP").toLowerCase().trim();
+			 String dstIP = obj.getString("dstIP").toLowerCase().trim();
+			 String srcPort = obj.getString("srcPort").toLowerCase().trim();
+			 String dstPort = obj.getString("dstPort").toLowerCase().trim();
+			 return "true";
+		 }
 		 else{
 			 boolean rs = service.ReceiveHIHStatus(name, status);
 			 return String.valueOf(rs); 

@@ -142,6 +142,29 @@ public class Connection {
 		//	 System.err.println("debug... packet is not tcp/udp "+pkt);
 		 }
 	} 
+	/*only used for fetch honeypot*/
+	public Connection(int srcIP, short srcPort, int dstIP, short dstPort){
+		type = INVALID;
+		//honeypotIP = 0;
+		e2iCount = 0;
+		i2eCount = 0;
+		pot = null;
+		startTime = System.currentTimeMillis();
+		flag = 0;
+		this.srcIP = srcIP;
+		this.srcPort = srcPort;
+		this.dstIP = dstIP;
+		this.dstPort = dstPort;
+		
+		int src1 = (srcIP>>24)&0xff;
+		int src2 = (srcIP>>16)&0xff;
+		int dst1 = (dstIP>>24)&0xff;
+		int dst2 = (dstIP>>16)&0xff;
+		type = EXTERNAL_TO_INTERNAL;
+		protocol = 0x06;
+	} 
+	
+	
 	public void setState(byte pkt_state){
 		state = pkt_state;
 	}
