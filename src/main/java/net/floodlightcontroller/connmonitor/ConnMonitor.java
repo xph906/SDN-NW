@@ -325,6 +325,7 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 							String real_dst = IPv4.fromIPv4Address(e2IFlow.getDstIP());
 							System.err.println("path is ready:"+real_src+":"+e2IFlow.srcPort+"=>"+real_dst+":"+real_dst+" "+currTime);
 							install_rules = true;
+							forward_packet = true;
 						}
 						
 					}
