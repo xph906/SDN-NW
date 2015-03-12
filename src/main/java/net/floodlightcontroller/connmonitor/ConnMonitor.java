@@ -827,6 +827,8 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 	public boolean forwardPacket(IOFSwitch sw, OFPacketIn pktInMsg, 
 			byte[] dstMAC, byte[] destIP, byte[] srcIP, short outSwPort) 
     {
+		long time = System.currentTimeMillis();
+		 System.err.println("Start forwrading packet: "+time);
         OFPacketOut pktOut = new OFPacketOut();        
         
         pktOut.setInPort(pktInMsg.getInPort());
@@ -887,6 +889,8 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
             sw.write(pktOut, null);
             sw.flush();
             //logger.info("forwarded packet ");
+            time = System.currentTimeMillis();
+   		 	System.err.println("Finish forwarding packet: "+time);
         }
         catch (IOException e) 
         {
@@ -906,6 +910,8 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 			logger.LogError("deleteFlows fail getting switch [installPathForFlow]");
 			return false;
 		}
+		long time = System.currentTimeMillis();
+		System.err.println("Prepare to install rule: "+time);
 		
 		OFFlowMod rule = new OFFlowMod();
 		if (flowFlag != (short) 0) {
@@ -955,6 +961,8 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 		try {
 			sw.write(rule, null);
 			sw.flush();
+			 time = System.currentTimeMillis();
+			 System.err.println("Finish installing rule: "+time);
 		} catch (IOException e) {
 			logger.LogError("fail to install rule: " + rule);
 			return false;
