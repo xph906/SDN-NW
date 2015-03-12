@@ -264,16 +264,16 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 			
 			boolean forward_packet = false;
 			boolean install_rules = false;
-			
+			long currTime = System.currentTimeMillis();
 			if(connMap.containsKey(key)){	
 				e2IFlow = connMap.get(key);
 				srcIP = IPv4.toIPv4AddressBytes(e2IFlow.getSrcIP());
-				System.err.println("Contains Key:" + conn.getConnectionSimplifiedKeyString());
+				System.err.println("Contains Key: "+currTime+" " + conn.getConnectionSimplifiedKeyString());
 				if(conn.type==Connection.EXTERNAL_TO_INTERNAL){
 					byte conn_state = e2IFlow.getState();
 					byte state = extractStateFromEthernet(eth);
 					short id = extractIDFromEthernet(eth);
-					long currTime = System.currentTimeMillis();
+					
 					if((conn_state==0x0C) && (state==0x00) ){
 						
 						System.err.println("PATHREADY: "+ currTime+" "+ IPv4.fromIPv4Address(conn.srcIP)+ 
@@ -323,7 +323,7 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 							
 							String real_src = IPv4.fromIPv4Address(e2IFlow.getOriginalIP());
 							String real_dst = IPv4.fromIPv4Address(e2IFlow.getDstIP());
-							System.err.println("path is ready:"+real_src+":"+e2IFlow.srcPort+"=>"+real_dst+":"+real_dst);
+							System.err.println("path is ready:"+real_src+":"+e2IFlow.srcPort+"=>"+real_dst+":"+real_dst+" "+currTime);
 							install_rules = true;
 						}
 						
@@ -334,7 +334,7 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 				}
 			}/* has found such connection */
 			else{ /* no such connection */
-				long currTime = System.currentTimeMillis();
+				 currTime = System.currentTimeMillis();
 				System.err.println("NEWCONN: "+ currTime+" "+ IPv4.fromIPv4Address(conn.srcIP)+ 
 						" dst:"+IPv4.fromIPv4Address(conn.dstIP) );
 				if(conn.type==Connection.EXTERNAL_TO_INTERNAL){
