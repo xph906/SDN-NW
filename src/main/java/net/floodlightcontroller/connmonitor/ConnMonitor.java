@@ -273,14 +273,16 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 					byte conn_state = e2IFlow.getState();
 					byte state = extractStateFromEthernet(eth);
 					short id = extractIDFromEthernet(eth);
-					
+					long currTime = System.currentTimeMillis();
 					if((conn_state==0x0C) && (state==0x00) ){
-						System.err.println("Regular packet, and the path is ready");
+						
+						System.err.println("PATHREADY: "+ currTime+" "+ IPv4.fromIPv4Address(conn.srcIP)+ 
+								" dst:"+IPv4.fromIPv4Address(conn.dstIP) );
 						install_rules = true;
 						forward_packet = true;
 					}
 					else if(conn_state==0x0C){
-						System.err.println("Constructor packet, but the path is ready, ignore!");
+						System.err.println("Constructor packet, but the path is ready, ignore! "+ currTime);
 						install_rules = false;
 						forward_packet = false;
 					}
@@ -290,7 +292,7 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 						byte missing_state = (byte)((byte)0x0c - conn_state);
 						boolean test = (((OFPacketIn)msg).getBufferId()==OFPacketOut.BUFFER_ID_NONE);
 						System.err.println("Regular packet, but the path is not ready. sending out setup requesting packet "+
-									String.valueOf(missing_state)+" "+test);
+									String.valueOf(missing_state)+" "+currTime);
 						forwardPacketForLosingPkt(sw,(OFPacketIn)msg,nw_gw_mac_address,
 								IPv4.toIPv4AddressBytes(e2IFlow.dstIP), IPv4.toIPv4AddressBytes(e2IFlow.srcIP),
 								e2IFlow.dstPort, e2IFlow.srcPort, outside_port, missing_state,eth); 
@@ -332,18 +334,22 @@ public class ConnMonitor extends ForwardingBase implements IFloodlightModule,IOF
 				}
 			}/* has found such connection */
 			else{ /* no such connection */
-				System.err.println("New connection: src:" + IPv4.fromIPv4Address(conn.srcIP)+ 
-						" dst:"+IPv4.fromIPv4Address(conn.dstIP));
+				long currTime = System.currentTimeMillis();
+				System.err.println("NEWCONN: "+ currTime+" "+ IPv4.fromIPv4Address(conn.srcIP)+ 
+						" dst:"+IPv4.fromIPv4Address(conn.dstIP) );
 				if(conn.type==Connection.EXTERNAL_TO_INTERNAL){
 					connMap.put(key, conn);
 					byte state = extractStateFromEthernet(eth);
 					short id = extractIDFromEthernet(eth);
 					
 					if(state==0x00){
-						System.err.println(conn+" first packet, non-constructor packet, sending setup requesting packet");	
+						currTime = System.currentTimeMillis();
+						System.err.println("LOSING Packet first packet, non-constructor packet, sending setup requesting packet "+currTime);	
 						forwardPacketForLosingPkt(sw,(OFPacketIn)msg,nw_gw_mac_address,
 								IPv4.toIPv4AddressBytes(conn.dstIP), IPv4.toIPv4AddressBytes(conn.srcIP),
 								conn.dstPort, conn.srcPort, outside_port, (byte)0x0c,eth); 
+						currTime = System.currentTimeMillis();
+						System.err.println("LOSING Packet done sending setup requesting packet "+currTime);
 					}
 					else if(state==0x04){
 						conn.setState(state);
